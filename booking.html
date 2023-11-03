@@ -12,6 +12,7 @@
   <link rel="stylesheet" href="./components.css">
   <!-- aos library css  -->
   <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+  <link rel="stylesheet" href="./booking.css"/>
 </head>
 
 <body>
@@ -71,22 +72,23 @@
     <div class="container">
       <h3 class="form__title">Book Table</h3>
       <div class="form__wrapper">
-        <form name="booking" method="POST" netlify>
+        <form name="booking" method="POST" netlify id="google_form_submit">
+          <input type="hidden" name="date" id="date"/>
           <div class="form__group">
             <label for="firstName">First Name</label>
-            <input type="text" id="firstName" name="First Name" required>
+            <input type="text" id="firstName" name="firstName" required>
           </div>
           <div class="form__group">
             <label for="lastName">Last Name</label>
-            <input type="text" id="lastName" name="Last Name" required>
+            <input type="text" id="lastName" name="lastName" required>
           </div>
           <div class="form__group">
             <label for="email">Email</label>
-            <input type="email" id="email" name="Email" required>
+            <input type="email" id="email" name="email" required>
           </div>
           <div class="form__group">
             <label for="tableType">Table Type</label>
-            <select name="Table Type" id="tableType" required>
+            <select name="tableType" id="tableType" name="tableType" required>
               <option selected disabled>Choose</option>
               <option value="small">Small(2 persons)</option>
               <option value="medium">Small(4 persons)</option>
@@ -95,11 +97,11 @@
           </div>
           <div class="form__group">
             <label for="guestNumber">Guest Number</label>
-            <input type="number" id="guestNumber" name="Guest Number" min="1" max="10" required>
+            <input type="number" id="guestNumber" name="guestNumber" min="1" max="10" required>
           </div>
           <div class="form__group">
             <label for="placement">Placement</label>
-            <select name="Placement" id="placement">
+            <select  id="placement" name="placement">
               <option selected disabled>Choose</option>
               <option value="outdoor">Outdoor</option>
               <option value="indoor">Indoor</option>
@@ -108,16 +110,17 @@
           </div>
           <div class="form__group">
             <label for="date">Date</label>
-            <input type="date" id="date" name="Date" required>
+            <input type="date" id="bookingdate" name="bookingdate" required>
           </div>
           <div class="form__group">
             <label for="time">time</label>
-            <input type="time" id="time" name="Time" required>
+            <input type="time" id="time" name="time" required>
           </div>
           <div class="form__group form__group__full">
             <label for="note">Note</label>
-            <textarea name="Note" id="note" rows="4"></textarea>
+            <textarea name="note" id="note" rows="4"></textarea>
           </div>
+          <div id="msgs"></div>
           <button type="submit" class="btn primary-btn">Book Table</button>
         </form>
       </div>
@@ -240,6 +243,47 @@
   <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
   <!-- custom scripts -->
   <script src="./main.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+  <script src="./assets/js/bootstrap.bundle-5.0.0-beta1.min.js"></script>
+  <script>
+            
+    var d = new Date();
+
+    document.getElementById("date").value = d.toDateString();
+    // Set the value of the "date" field
+
+    $('#google_form_submit').submit(function(e){
+        e.preventDefault();
+        var formData = $('#google_form_submit').serialize();
+        console.log(formData);
+        $.ajax({
+              type        : 'POST', 
+              url         : 'https://script.google.com/macros/s/AKfycbxyK6gVffQRVd001heNclJxMGqLxkV2IRlXo0ND7Tt788RtI-MWnmqc9S_yE5dB3KtG/exec',
+              data        : formData, 
+              dataType    : 'json',
+              encode      : true
+         }).done(function(data) {
+              if(data.result == 'success') {
+                // Form submission was successful and accepted by google. 
+                // You can show your success message here
+                $('#msgs').html("<div class='alert alert-success'><strong>Success!</strong>Thanks for your booking! we will contact you soon.</div>");
+               
+  
+              } else {
+                $('#msgs').html("<div class='alert alert-warning'><strong>Warning!</strong>"+data.result+"</div>");
+               
+  
+              }
+         }).fail(function (jqXHR,status,err) {
+              // Form submission failed due to some network or other errors
+              // I am alerting the error but you can do anything else with it     
+              $('#msgs').html("<div class='alert alert-danger'><strong>Danger!</strong>"+err+"</div>");
+         });
+    });
+    setTimeout(() => {
+        $('.alert').alert('close');
+    }, 2000);
+</script>
 </body>
 
 </html>
